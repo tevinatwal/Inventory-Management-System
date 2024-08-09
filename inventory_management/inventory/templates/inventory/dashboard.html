@@ -1,0 +1,96 @@
+{% extends 'inventory/base.html' %}
+
+{% block content %}
+    {% if messages %}
+        <div class="row mt-3">
+            {% for message in messages %}
+                {% if message.tags == 'error' %}
+                    <div class="col-md-10 col-12 mx-auto alert alert-danger">
+                        {{ message }}
+                    </div>
+                {% else %}
+                    <div class="col-md-10 col-12 mx-auto alert alert-success">
+                        {{ message }}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+    <div class="row mt-3">
+        <div class="col-md-8 col-12 mx-auto">
+            <div class="d-flex flex-wrap justify-content-start mb-3">
+                <a href="{% url 'dashboard' %}" class="btn btn-secondary mb-2 mr-2">Show All</a>
+                <a href="{% url 'low-items' %}" class="btn btn-warning mb-2 mr-2">Low Inventory</a>
+                <form method="get" action="{% url 'search-items' %}" class="form-inline mb-2 ml-2">
+                    <input type="text" name="query" class="form-control mr-2" placeholder="Search Item">
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </form>
+                <form method="get" action="{% url 'filter-category' %}" class="form-inline mb-2 mr-2">
+                    <select name="category" class="form-control mr-2">
+                        {% for category in categories %}
+                            <option value="{{ category.id }}">{{ category.name }}</option>
+                           {% endfor %} 
+                    </select>
+                    <button type="submit" class="btn btn-primary">Filter by Category</button>
+                </form>
+                <a href="{% url 'generate-pdf' %}" class="btn btn-info mb-2">Download PDF</a>
+            </div>
+        </div> 
+        <div class="col-md-2 col-12 mt-2">
+            <div class="alert alert-info mb-0">
+                Overall Cost: ${{ total_cost }}
+            </div>
+        </div>
+    </div>
+
+        <div class="col-md-10 col-12 mx-auto mt-5">
+            <div class="d-flex justify-content-end mb-3">
+                <a href="{% url 'add-item' %}" class="btn btn-primary">+</a>
+            </div>
+
+            <table class="table table-hover table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Qty</th>
+                        <th scope="col">Category</th>
+                        <th scope="col">Unit Cost</th>
+                        <th scope="col">Total Cost</th>
+                        <th scope="col"></th>
+                        <th scope="col"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if items|length == 0 %}
+                    <tr>
+                        <th scope="row">-</th>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td></td>
+                    </tr>
+                    {% endif %}
+
+                    {% for item in items %}
+                    <tr>
+                        <td>{{ item.name }}</td>
+                        {% if item.id in low_inventory_ids %}
+                            <td class="text-danger">{{ item.quantity }}</td>
+                        {% else %}
+                            <td class="text-success">{{ item.quantity }}</td>
+                        {% endif %}
+                        <td>{{ item.category.name }}</td>
+                        <td>${{ item.unit_cost }}</td>
+                        <td>${{ item.total_cost }}</td>
+                        <td><a href="{% url 'edit-item' item.id %}" class="btn btn-primary">Edit</a></td>
+                        <td><a href="{% url 'delete-item' item.id %}" class="btn btn-primary">Delete</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock content %}

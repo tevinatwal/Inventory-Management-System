@@ -5,5 +5,3 @@ admin.site.register(InventoryItem)
 admin.site.register(Category)
 
 
-## admin
-## CIO@local
